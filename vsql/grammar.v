@@ -13,6 +13,7 @@ type EarleyValue = BetweenExpr
 	| Identifier
 	| InsertStmt
 	| LikeExpr
+	| QualifiedJoin
 	| QueryExpression
 	| SelectList
 	| SimilarExpr
@@ -23,6 +24,7 @@ type EarleyValue = BetweenExpr
 	| TableExpression
 	| TablePrimary
 	| TablePrimaryBody
+	| TableReference
 	| Type
 	| Value
 	| []Expr
@@ -309,21 +311,6 @@ fn get_grammar() map[string]EarleyRule {
 	mut rule_comparison_predicate_ := &EarleyRule{
 		name: '<comparison predicate>'
 	}
-	mut rule_computational_operation_1_ := &EarleyRule{
-		name: '<computational operation: 1>'
-	}
-	mut rule_computational_operation_2_ := &EarleyRule{
-		name: '<computational operation: 2>'
-	}
-	mut rule_computational_operation_3_ := &EarleyRule{
-		name: '<computational operation: 3>'
-	}
-	mut rule_computational_operation_4_ := &EarleyRule{
-		name: '<computational operation: 4>'
-	}
-	mut rule_computational_operation_5_ := &EarleyRule{
-		name: '<computational operation: 5>'
-	}
 	mut rule_computational_operation_ := &EarleyRule{
 		name: '<computational operation>'
 	}
@@ -591,6 +578,9 @@ fn get_grammar() map[string]EarleyRule {
 	mut rule_identifier_body_ := &EarleyRule{
 		name: '<identifier body>'
 	}
+	mut rule_identifier_chain_2_ := &EarleyRule{
+		name: '<identifier chain: 2>'
+	}
 	mut rule_identifier_chain_ := &EarleyRule{
 		name: '<identifier chain>'
 	}
@@ -626,6 +616,24 @@ fn get_grammar() map[string]EarleyRule {
 	}
 	mut rule_is_symmetric_ := &EarleyRule{
 		name: '<is symmetric>'
+	}
+	mut rule_join_condition_1_ := &EarleyRule{
+		name: '<join condition: 1>'
+	}
+	mut rule_join_condition_ := &EarleyRule{
+		name: '<join condition>'
+	}
+	mut rule_join_specification_ := &EarleyRule{
+		name: '<join specification>'
+	}
+	mut rule_join_type_3_ := &EarleyRule{
+		name: '<join type: 3>'
+	}
+	mut rule_join_type_ := &EarleyRule{
+		name: '<join type>'
+	}
+	mut rule_joined_table_ := &EarleyRule{
+		name: '<joined table>'
 	}
 	mut rule_left_paren_ := &EarleyRule{
 		name: '<left paren>'
@@ -759,6 +767,9 @@ fn get_grammar() map[string]EarleyRule {
 	mut rule_ordinary_grouping_set_ := &EarleyRule{
 		name: '<ordinary grouping set>'
 	}
+	mut rule_outer_join_type_ := &EarleyRule{
+		name: '<outer join type>'
+	}
 	mut rule_parenthesized_boolean_value_expression_1_ := &EarleyRule{
 		name: '<parenthesized boolean value expression: 1>'
 	}
@@ -815,6 +826,15 @@ fn get_grammar() map[string]EarleyRule {
 	}
 	mut rule_qualified_identifier_ := &EarleyRule{
 		name: '<qualified identifier>'
+	}
+	mut rule_qualified_join_1_ := &EarleyRule{
+		name: '<qualified join: 1>'
+	}
+	mut rule_qualified_join_2_ := &EarleyRule{
+		name: '<qualified join: 2>'
+	}
+	mut rule_qualified_join_ := &EarleyRule{
+		name: '<qualified join>'
 	}
 	mut rule_query_expression_body_ := &EarleyRule{
 		name: '<query expression body>'
@@ -1146,6 +1166,12 @@ fn get_grammar() map[string]EarleyRule {
 	mut rule_table_reference_list_ := &EarleyRule{
 		name: '<table reference list>'
 	}
+	mut rule_table_reference_1_ := &EarleyRule{
+		name: '<table reference: 1>'
+	}
+	mut rule_table_reference_2_ := &EarleyRule{
+		name: '<table reference: 2>'
+	}
 	mut rule_table_reference_ := &EarleyRule{
 		name: '<table reference>'
 	}
@@ -1359,6 +1385,9 @@ fn get_grammar() map[string]EarleyRule {
 	mut rule_in := &EarleyRule{
 		name: 'IN'
 	}
+	mut rule_inner := &EarleyRule{
+		name: 'INNER'
+	}
 	mut rule_insert := &EarleyRule{
 		name: 'INSERT'
 	}
@@ -1374,8 +1403,14 @@ fn get_grammar() map[string]EarleyRule {
 	mut rule_is := &EarleyRule{
 		name: 'IS'
 	}
+	mut rule_join := &EarleyRule{
+		name: 'JOIN'
+	}
 	mut rule_key := &EarleyRule{
 		name: 'KEY'
+	}
+	mut rule_left := &EarleyRule{
+		name: 'LEFT'
 	}
 	mut rule_like := &EarleyRule{
 		name: 'LIKE'
@@ -1410,6 +1445,9 @@ fn get_grammar() map[string]EarleyRule {
 	mut rule_offset := &EarleyRule{
 		name: 'OFFSET'
 	}
+	mut rule_on := &EarleyRule{
+		name: 'ON'
+	}
 	mut rule_only := &EarleyRule{
 		name: 'ONLY'
 	}
@@ -1418,6 +1456,9 @@ fn get_grammar() map[string]EarleyRule {
 	}
 	mut rule_order := &EarleyRule{
 		name: 'ORDER'
+	}
+	mut rule_outer := &EarleyRule{
+		name: 'OUTER'
 	}
 	mut rule_position := &EarleyRule{
 		name: 'POSITION'
@@ -1433,6 +1474,9 @@ fn get_grammar() map[string]EarleyRule {
 	}
 	mut rule_real := &EarleyRule{
 		name: 'REAL'
+	}
+	mut rule_right := &EarleyRule{
+		name: 'RIGHT'
 	}
 	mut rule_rollback := &EarleyRule{
 		name: 'ROLLBACK'
@@ -2460,59 +2504,29 @@ fn get_grammar() map[string]EarleyRule {
 		},
 	]}
 
-	rule_computational_operation_1_.productions << &EarleyProduction{[
+	rule_computational_operation_.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			rule: rule_avg
 		},
 	]}
-
-	rule_computational_operation_2_.productions << &EarleyProduction{[
+	rule_computational_operation_.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			rule: rule_max
 		},
 	]}
-
-	rule_computational_operation_3_.productions << &EarleyProduction{[
+	rule_computational_operation_.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			rule: rule_min
 		},
 	]}
-
-	rule_computational_operation_4_.productions << &EarleyProduction{[
+	rule_computational_operation_.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			rule: rule_sum
 		},
 	]}
-
-	rule_computational_operation_5_.productions << &EarleyProduction{[
+	rule_computational_operation_.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			rule: rule_count
-		},
-	]}
-
-	rule_computational_operation_.productions << &EarleyProduction{[
-		&EarleyRuleOrString{
-			rule: rule_computational_operation_1_
-		},
-	]}
-	rule_computational_operation_.productions << &EarleyProduction{[
-		&EarleyRuleOrString{
-			rule: rule_computational_operation_2_
-		},
-	]}
-	rule_computational_operation_.productions << &EarleyProduction{[
-		&EarleyRuleOrString{
-			rule: rule_computational_operation_3_
-		},
-	]}
-	rule_computational_operation_.productions << &EarleyProduction{[
-		&EarleyRuleOrString{
-			rule: rule_computational_operation_4_
-		},
-	]}
-	rule_computational_operation_.productions << &EarleyProduction{[
-		&EarleyRuleOrString{
-			rule: rule_computational_operation_5_
 		},
 	]}
 
@@ -3349,9 +3363,26 @@ fn get_grammar() map[string]EarleyRule {
 		},
 	]}
 
+	rule_identifier_chain_2_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_identifier_
+		},
+		&EarleyRuleOrString{
+			rule: rule_period_
+		},
+		&EarleyRuleOrString{
+			rule: rule_identifier_
+		},
+	]}
+
 	rule_identifier_chain_.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			rule: rule_identifier_
+		},
+	]}
+	rule_identifier_chain_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_identifier_chain_2_
 		},
 	]}
 
@@ -3432,6 +3463,58 @@ fn get_grammar() map[string]EarleyRule {
 	rule_is_symmetric_.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			rule: rule_is_symmetric_2_
+		},
+	]}
+
+	rule_join_condition_1_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_on
+		},
+		&EarleyRuleOrString{
+			rule: rule_search_condition_
+		},
+	]}
+
+	rule_join_condition_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_join_condition_1_
+		},
+	]}
+
+	rule_join_specification_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_join_condition_
+		},
+	]}
+
+	rule_join_type_3_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_outer_join_type_
+		},
+		&EarleyRuleOrString{
+			rule: rule_outer
+		},
+	]}
+
+	rule_join_type_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_inner
+		},
+	]}
+	rule_join_type_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_outer_join_type_
+		},
+	]}
+	rule_join_type_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_join_type_3_
+		},
+	]}
+
+	rule_joined_table_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_qualified_join_
 		},
 	]}
 
@@ -3877,6 +3960,17 @@ fn get_grammar() map[string]EarleyRule {
 		},
 	]}
 
+	rule_outer_join_type_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_left
+		},
+	]}
+	rule_outer_join_type_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_right
+		},
+	]}
+
 	rule_parenthesized_boolean_value_expression_1_.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			rule: rule_left_paren_
@@ -4078,6 +4172,50 @@ fn get_grammar() map[string]EarleyRule {
 	rule_qualified_identifier_.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			rule: rule_identifier_
+		},
+	]}
+
+	rule_qualified_join_1_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_table_reference_
+		},
+		&EarleyRuleOrString{
+			rule: rule_join
+		},
+		&EarleyRuleOrString{
+			rule: rule_table_reference_
+		},
+		&EarleyRuleOrString{
+			rule: rule_join_specification_
+		},
+	]}
+
+	rule_qualified_join_2_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_table_reference_
+		},
+		&EarleyRuleOrString{
+			rule: rule_join_type_
+		},
+		&EarleyRuleOrString{
+			rule: rule_join
+		},
+		&EarleyRuleOrString{
+			rule: rule_table_reference_
+		},
+		&EarleyRuleOrString{
+			rule: rule_join_specification_
+		},
+	]}
+
+	rule_qualified_join_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_qualified_join_1_
+		},
+	]}
+	rule_qualified_join_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_qualified_join_2_
 		},
 	]}
 
@@ -5112,9 +5250,26 @@ fn get_grammar() map[string]EarleyRule {
 		},
 	]}
 
-	rule_table_reference_.productions << &EarleyProduction{[
+	rule_table_reference_1_.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			rule: rule_table_factor_
+		},
+	]}
+
+	rule_table_reference_2_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_joined_table_
+		},
+	]}
+
+	rule_table_reference_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_table_reference_1_
+		},
+	]}
+	rule_table_reference_.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			rule: rule_table_reference_2_
 		},
 	]}
 
@@ -5721,6 +5876,13 @@ fn get_grammar() map[string]EarleyRule {
 		},
 	]}
 
+	rule_inner.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			str: 'INNER'
+			rule: 0
+		},
+	]}
+
 	rule_insert.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			str: 'INSERT'
@@ -5756,9 +5918,23 @@ fn get_grammar() map[string]EarleyRule {
 		},
 	]}
 
+	rule_join.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			str: 'JOIN'
+			rule: 0
+		},
+	]}
+
 	rule_key.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			str: 'KEY'
+			rule: 0
+		},
+	]}
+
+	rule_left.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			str: 'LEFT'
 			rule: 0
 		},
 	]}
@@ -5840,6 +6016,13 @@ fn get_grammar() map[string]EarleyRule {
 		},
 	]}
 
+	rule_on.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			str: 'ON'
+			rule: 0
+		},
+	]}
+
 	rule_only.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			str: 'ONLY'
@@ -5857,6 +6040,13 @@ fn get_grammar() map[string]EarleyRule {
 	rule_order.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			str: 'ORDER'
+			rule: 0
+		},
+	]}
+
+	rule_outer.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			str: 'OUTER'
 			rule: 0
 		},
 	]}
@@ -5892,6 +6082,13 @@ fn get_grammar() map[string]EarleyRule {
 	rule_real.productions << &EarleyProduction{[
 		&EarleyRuleOrString{
 			str: 'REAL'
+			rule: 0
+		},
+	]}
+
+	rule_right.productions << &EarleyProduction{[
+		&EarleyRuleOrString{
+			str: 'RIGHT'
 			rule: 0
 		},
 	]}
@@ -6176,11 +6373,6 @@ fn get_grammar() map[string]EarleyRule {
 	rules['<comparison predicate part 2>'] = rule_comparison_predicate_part_2_
 	rules['<comparison predicate: 1>'] = rule_comparison_predicate_1_
 	rules['<comparison predicate>'] = rule_comparison_predicate_
-	rules['<computational operation: 1>'] = rule_computational_operation_1_
-	rules['<computational operation: 2>'] = rule_computational_operation_2_
-	rules['<computational operation: 3>'] = rule_computational_operation_3_
-	rules['<computational operation: 4>'] = rule_computational_operation_4_
-	rules['<computational operation: 5>'] = rule_computational_operation_5_
 	rules['<computational operation>'] = rule_computational_operation_
 	rules['<concatenation operator>'] = rule_concatenation_operator_
 	rules['<concatenation: 1>'] = rule_concatenation_1_
@@ -6270,6 +6462,7 @@ fn get_grammar() map[string]EarleyRule {
 	rules['<host parameter name>'] = rule_host_parameter_name_
 	rules['<host parameter specification>'] = rule_host_parameter_specification_
 	rules['<identifier body>'] = rule_identifier_body_
+	rules['<identifier chain: 2>'] = rule_identifier_chain_2_
 	rules['<identifier chain>'] = rule_identifier_chain_
 	rules['<identifier start>'] = rule_identifier_start_
 	rules['<identifier>'] = rule_identifier_
@@ -6282,6 +6475,12 @@ fn get_grammar() map[string]EarleyRule {
 	rules['<is symmetric: 1>'] = rule_is_symmetric_1_
 	rules['<is symmetric: 2>'] = rule_is_symmetric_2_
 	rules['<is symmetric>'] = rule_is_symmetric_
+	rules['<join condition: 1>'] = rule_join_condition_1_
+	rules['<join condition>'] = rule_join_condition_
+	rules['<join specification>'] = rule_join_specification_
+	rules['<join type: 3>'] = rule_join_type_3_
+	rules['<join type>'] = rule_join_type_
+	rules['<joined table>'] = rule_joined_table_
 	rules['<left paren>'] = rule_left_paren_
 	rules['<length expression>'] = rule_length_expression_
 	rules['<length>'] = rule_length_
@@ -6326,6 +6525,7 @@ fn get_grammar() map[string]EarleyRule {
 	rules['<ordering specification: 2>'] = rule_ordering_specification_2_
 	rules['<ordering specification>'] = rule_ordering_specification_
 	rules['<ordinary grouping set>'] = rule_ordinary_grouping_set_
+	rules['<outer join type>'] = rule_outer_join_type_
 	rules['<parenthesized boolean value expression: 1>'] = rule_parenthesized_boolean_value_expression_1_
 	rules['<parenthesized boolean value expression>'] = rule_parenthesized_boolean_value_expression_
 	rules['<parenthesized derived column list: 1>'] = rule_parenthesized_derived_column_list_1_
@@ -6345,6 +6545,9 @@ fn get_grammar() map[string]EarleyRule {
 	rules['<preparable SQL transaction statement>'] = rule_preparable_sql_transaction_statement_
 	rules['<preparable statement>'] = rule_preparable_statement_
 	rules['<qualified identifier>'] = rule_qualified_identifier_
+	rules['<qualified join: 1>'] = rule_qualified_join_1_
+	rules['<qualified join: 2>'] = rule_qualified_join_2_
+	rules['<qualified join>'] = rule_qualified_join_
 	rules['<query expression body>'] = rule_query_expression_body_
 	rules['<query expression: 1>'] = rule_query_expression_1_
 	rules['<query expression: 2>'] = rule_query_expression_2_
@@ -6455,6 +6658,8 @@ fn get_grammar() map[string]EarleyRule {
 	rules['<table primary: 3>'] = rule_table_primary_3_
 	rules['<table primary>'] = rule_table_primary_
 	rules['<table reference list>'] = rule_table_reference_list_
+	rules['<table reference: 1>'] = rule_table_reference_1_
+	rules['<table reference: 2>'] = rule_table_reference_2_
 	rules['<table reference>'] = rule_table_reference_
 	rules['<table row value expression>'] = rule_table_row_value_expression_
 	rules['<table subquery>'] = rule_table_subquery_
@@ -6526,12 +6731,15 @@ fn get_grammar() map[string]EarleyRule {
 	rules['FROM'] = rule_from
 	rules['GROUP'] = rule_group
 	rules['IN'] = rule_in
+	rules['INNER'] = rule_inner
 	rules['INSERT'] = rule_insert
 	rules['INT'] = rule_int
 	rules['INTEGER'] = rule_integer
 	rules['INTO'] = rule_into
 	rules['IS'] = rule_is
+	rules['JOIN'] = rule_join
 	rules['KEY'] = rule_key
+	rules['LEFT'] = rule_left
 	rules['LIKE'] = rule_like
 	rules['LN'] = rule_ln
 	rules['LOG10'] = rule_log10
@@ -6543,14 +6751,17 @@ fn get_grammar() map[string]EarleyRule {
 	rules['NULL'] = rule_null
 	rules['OCTET_LENGTH'] = rule_octet_length
 	rules['OFFSET'] = rule_offset
+	rules['ON'] = rule_on
 	rules['ONLY'] = rule_only
 	rules['OR'] = rule_or
 	rules['ORDER'] = rule_order
+	rules['OUTER'] = rule_outer
 	rules['POSITION'] = rule_position
 	rules['POWER'] = rule_power
 	rules['PRECISION'] = rule_precision
 	rules['PRIMARY'] = rule_primary
 	rules['REAL'] = rule_real
+	rules['RIGHT'] = rule_right
 	rules['ROLLBACK'] = rule_rollback
 	rules['ROW'] = rule_row
 	rules['ROWS'] = rule_rows
@@ -6781,21 +6992,6 @@ fn parse_ast_name(children []EarleyValue, name string) ?[]EarleyValue {
 				EarleyValue(parse_comparison(children[0] as Expr, children[1] as ComparisonPredicatePart2)?),
 			]
 		}
-		'<computational operation: 1>' {
-			return [EarleyValue(parse_avg()?)]
-		}
-		'<computational operation: 2>' {
-			return [EarleyValue(parse_max()?)]
-		}
-		'<computational operation: 3>' {
-			return [EarleyValue(parse_min()?)]
-		}
-		'<computational operation: 4>' {
-			return [EarleyValue(parse_sum()?)]
-		}
-		'<computational operation: 5>' {
-			return [EarleyValue(parse_count()?)]
-		}
 		'<concatenation: 1>' {
 			return [
 				EarleyValue(parse_concatenation(children[0] as Expr, children[2] as Expr)?),
@@ -6928,7 +7124,7 @@ fn parse_ast_name(children []EarleyValue, name string) ?[]EarleyValue {
 			return [EarleyValue(parse_lower(children[2] as Expr)?)]
 		}
 		'<from clause: 1>' {
-			return [EarleyValue(parse_from_clause(children[1] as TablePrimary)?)]
+			return [EarleyValue(parse_from_clause(children[1] as TableReference)?)]
 		}
 		'<from constructor: 1>' {
 			return [
@@ -6961,6 +7157,11 @@ fn parse_ast_name(children []EarleyValue, name string) ?[]EarleyValue {
 				EarleyValue(parse_host_parameter_name(children[1] as Identifier)?),
 			]
 		}
+		'<identifier chain: 2>' {
+			return [
+				EarleyValue(parse_identifier_chain1(children[0] as Identifier, children[2] as Identifier)?),
+			]
+		}
 		'<insert statement: 1>' {
 			return [
 				EarleyValue(parse_insert_statement(children[2] as Identifier, children[3] as InsertStmt)?),
@@ -6971,6 +7172,12 @@ fn parse_ast_name(children []EarleyValue, name string) ?[]EarleyValue {
 		}
 		'<is symmetric: 2>' {
 			return [EarleyValue(parse_no()?)]
+		}
+		'<join condition: 1>' {
+			return [EarleyValue(parse_expr(children[1] as Expr)?)]
+		}
+		'<join type: 3>' {
+			return [EarleyValue(parse_string(children[0] as string)?)]
 		}
 		'<literal: 2>' {
 			return [EarleyValue(parse_value_to_expr(children[0] as Value)?)]
@@ -7040,6 +7247,18 @@ fn parse_ast_name(children []EarleyValue, name string) ?[]EarleyValue {
 		'<power function: 1>' {
 			return [
 				EarleyValue(parse_power(children[2] as Expr, children[4] as Expr)?),
+			]
+		}
+		'<qualified join: 1>' {
+			return [
+				EarleyValue(parse_qualified_join1(children[0] as TableReference, children[2] as TableReference,
+					children[3] as Expr)?),
+			]
+		}
+		'<qualified join: 2>' {
+			return [
+				EarleyValue(parse_qualified_join2(children[0] as TableReference, children[1] as string,
+					children[3] as TableReference, children[4] as Expr)?),
 			]
 		}
 		'<query expression: 1>' {
@@ -7216,24 +7435,24 @@ fn parse_ast_name(children []EarleyValue, name string) ?[]EarleyValue {
 		}
 		'<table expression: 1>' {
 			return [
-				EarleyValue(parse_table_expression(children[0] as TablePrimary)?),
+				EarleyValue(parse_table_expression(children[0] as TableReference)?),
 			]
 		}
 		'<table expression: 2>' {
 			return [
-				EarleyValue(parse_table_expression_where(children[0] as TablePrimary,
+				EarleyValue(parse_table_expression_where(children[0] as TableReference,
 					children[1] as Expr)?),
 			]
 		}
 		'<table expression: 3>' {
 			return [
-				EarleyValue(parse_table_expression_group(children[0] as TablePrimary,
+				EarleyValue(parse_table_expression_group(children[0] as TableReference,
 					children[1] as []Expr)?),
 			]
 		}
 		'<table expression: 4>' {
 			return [
-				EarleyValue(parse_table_expression_where_group(children[0] as TablePrimary,
+				EarleyValue(parse_table_expression_where_group(children[0] as TableReference,
 					children[1] as Expr, children[2] as []Expr)?),
 			]
 		}
@@ -7252,6 +7471,12 @@ fn parse_ast_name(children []EarleyValue, name string) ?[]EarleyValue {
 				EarleyValue(parse_table_primary_derived2(children[0] as TablePrimary,
 					children[1] as Correlation)?),
 			]
+		}
+		'<table reference: 1>' {
+			return [EarleyValue(parse_table_factor(children[0] as TablePrimary)?)]
+		}
+		'<table reference: 2>' {
+			return [EarleyValue(parse_joined_table(children[0] as QualifiedJoin)?)]
 		}
 		'<table value constructor: 1>' {
 			return [

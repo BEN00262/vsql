@@ -86,6 +86,15 @@ fn (e Expr) pstr(params map[string]Value) string {
 	}
 }
 
+type TableReference = QualifiedJoin | TablePrimary
+
+struct QualifiedJoin {
+	left_table    TableReference
+	join_type     string // 'INNER', 'LEFT'
+	right_table   TableReference
+	specification Expr
+}
+
 // SelectStmt for SELECT
 // []RowExpr for VALUES ROW(), ROW() ...
 type SimpleTable = SelectStmt | []RowExpr
@@ -264,7 +273,7 @@ struct ComparisonPredicatePart2 {
 }
 
 struct TableExpression {
-	from_clause  TablePrimary
+	from_clause  TableReference
 	where_clause Expr
 	group_clause []Expr
 }

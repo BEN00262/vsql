@@ -51,14 +51,42 @@ fn create_basic_plan(body SimpleTable, offset Expr, params map[string]Value, c &
 }
 
 fn create_select_plan(body SelectStmt, offset Expr, params map[string]Value, c &Connection, allow_virtual bool) ?Plan {
-	mut plan := Plan{}
-	mut covered_by_pk := false
-	from_clause := body.table_expression.from_clause.body
-	where := body.table_expression.where_clause
+	from_clause := body.table_expression.from_clause
 
 	match from_clause {
+		TablePrimary {
+			return create_select_plan_without_join(body, from_clause, offset, params,
+				c, allow_virtual)
+		}
+		QualifiedJoin {
+			left_table := from_clause.left_table as TablePrimary
+			left_plan := create_select_plan_without_join(body, left_table, offset, params,
+				c, allow_virtual)?
+
+			right_table := from_clause.right_table as TablePrimary
+			right_plan := create_select_plan_without_join(body, right_table, offset, params,
+				c, allow_virtual)?
+
+			mut plan := Plan{}
+			plan.subplans['\$1'] = left_plan
+			plan.subplans['\$2'] = right_plan
+
+			plan.operations << new_join_operation(left_plan.columns(), from_clause.join_type,
+				right_plan.columns(), from_clause.specification, params, c, plan, c.storage)
+
+			return plan
+		}
+	}
+}
+
+fn create_select_plan_without_join(body SelectStmt, from_clause TablePrimary, offset Expr, params map[string]Value, c &Connection, allow_virtual bool) ?Plan {
+	mut plan := Plan{}
+	mut covered_by_pk := false
+	where := body.table_expression.where_clause
+
+	match from_clause.body {
 		Identifier {
-			table_name := from_clause.name
+			table_name := from_clause.body.name
 
 			if allow_virtual && table_name in c.virtual_tables {
 				plan.operations << VirtualTableOperation{table_name, c.virtual_tables[table_name]}
@@ -95,11 +123,11 @@ fn create_select_plan(body SelectStmt, offset Expr, params map[string]Value, c &
 			// TODO(elliotchance): Needs to increment.
 			mut table_name := '\$1'
 
-			if body.table_expression.from_clause.correlation.name.name != '' {
-				table_name = body.table_expression.from_clause.correlation.name.name
+			if from_clause.correlation.name.name != '' {
+				table_name = from_clause.correlation.name.name
 			}
 
-			subplan := create_query_expression_plan(from_clause, params, c, body.table_expression.from_clause.correlation)?
+			subplan := create_query_expression_plan(from_clause.body, params, c, from_clause.correlation)?
 			plan.subplans[table_name] = subplan
 
 			// NOTE: This has to be assigned to a variable otherwise the value
